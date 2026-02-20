@@ -8,6 +8,7 @@ const NavBar = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("access");
+    localStorage.removeItem("refresh");
     navigate("/");
   };
 

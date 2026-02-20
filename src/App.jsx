@@ -5,9 +5,14 @@ import AddInc from "./components/AddInc";
 import AddExp from "./components/AddExp";
 import PublicRoute from "./components/PublicRoute";
 import PrivateRoute from "./components/PrivateRoute";
+import NavBar from "./components/NavBar";
+import Income from "./components/Incomes";
+import Expenses from "./components/Expenses";
 
 function App() {
   return (
+    <>
+    <NavBar />
     <Routes>
       <Route
         path="/"
@@ -27,6 +32,14 @@ function App() {
         }
       />
       <Route
+        path="/incomestat"
+        element={
+          <PrivateRoute>
+            <Income />
+          </PrivateRoute>
+        }
+      />
+      <Route
         path="/income"
         element={
           <PrivateRoute>
@@ -42,7 +55,16 @@ function App() {
           </PrivateRoute>
         }
       />
+      <Route
+        path="/expensestat"
+        element={
+          <PrivateRoute>
+            <Expenses />
+          </PrivateRoute>
+        }
+      />
     </Routes>
+    </>
   );
 }
 

@@ -8,7 +8,7 @@ import {
 import { Doughnut } from "react-chartjs-2";
 
 const glassCard =
-  "backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl shadow-xl p-6 transition hover:bg-white/20";
+  "backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl shadow-xl p-6 transition hover:bg-white/20 text-white";
 
 // Register Chart.js components
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -63,29 +63,32 @@ const Dashboard = () => {
   if (loading) return <div className="p-6 text-white">Loading...</div>;
   if (error) return <div className="p-6 text-red-500">{error}</div>;
 
-  // Doughnut chart data
+  const income = data?.total_income || 0;
+  const expense = data?.total_expense || 0;
+  const recommended = data?.recommended_spending || 0;
+  const balance = data?.remaining_balance || 0;
+
+  const expenseRatio = income ? ((expense / income) * 100).toFixed(1) : 0;
+  const recommendedRatio = income
+    ? ((recommended / income) * 100).toFixed(1)
+    : 0;
+
   const doughnutData = {
-    labels: ["Total Income", "Total Expense", "Recommended Spending", "Remaining Balance"],
+    labels: [
+      "Total Income",
+      "Total Expense",
+      "Recommended Spending",
+      "Remaining Balance",
+    ],
     datasets: [
       {
         label: "Budget Overview",
-        data: [
-          data?.total_income || 0,
-          data?.total_expense || 0,
-          data?.recommended_spending || 0,
-          data?.remaining_balance || 0,
-        ],
+        data: [income, expense, recommended, balance],
         backgroundColor: [
-          "rgba(75, 192, 192, 0.6)",
-          "rgba(255, 99, 132, 0.6)",
-          "rgba(255, 206, 86, 0.6)",
-          "rgba(153, 102, 255, 0.6)",
-        ],
-        borderColor: [
-          "rgba(75, 192, 192, 1)",
-          "rgba(255, 99, 132, 1)",
-          "rgba(255, 206, 86, 1)",
-          "rgba(153, 102, 255, 1)",
+          "rgba(75,192,192,0.6)",
+          "rgba(255,99,132,0.6)",
+          "rgba(255,206,86,0.6)",
+          "rgba(153,102,255,0.6)",
         ],
         borderWidth: 1,
       },
@@ -99,56 +102,86 @@ const Dashboard = () => {
         position: "bottom",
         labels: { color: "white" },
       },
-      tooltip: {
-        callbacks: {
-          label: function (tooltipItem) {
-            return `${tooltipItem.label}: ${tooltipItem.raw}`;
-          },
-        },
-      },
     },
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 p-6">
-      <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 p-6 md:px-20 md:py-12">
+      <h1 className="text-3xl font-bold mb-6 text-white">Dashboard</h1>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-1 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className={glassCard}>
             <p className="text-sm text-white/70">Total Income</p>
-            <p className="text-xl font-bold">{data?.total_income}</p>
+            <p className="text-2xl font-bold">{income}</p>
           </div>
 
           <div className={glassCard}>
             <p className="text-sm text-white/70">Total Expense</p>
-            <p className="text-xl font-bold">{data?.total_expense}</p>
+            <p className="text-2xl font-bold">{expense}</p>
           </div>
 
           <div className={glassCard}>
             <p className="text-sm text-white/70">Recommended Spending</p>
-            <p className="text-xl font-bold">{data?.recommended_spending}</p>
+            <p className="text-2xl font-bold">{recommended}</p>
           </div>
 
           <div className={glassCard}>
             <p className="text-sm text-white/70">Remaining Balance</p>
-            <p className="text-xl font-bold">{data?.remaining_balance}</p>
+            <p className="text-2xl font-bold">{balance}</p>
           </div>
         </div>
 
-        {/* Analysis Cards */}
+        {/* Income Analysis */}
         <div className={glassCard}>
-          <h2 className="text-lg font-semibold">Income Analysis</h2>
+          <h2 className="text-lg font-semibold mb-4">Income Analysis</h2>
+
+          <p className="text-sm text-white/70">Recommended Usage</p>
+          <p className="text-2xl font-bold mb-3">{recommendedRatio}%</p>
+
+          <div className="w-full bg-white/20 rounded-full h-2">
+            <div
+              className="bg-green-400 h-2 rounded-full"
+              style={{ width: `${recommendedRatio}%` }}
+            ></div>
+          </div>
+
+          <p className="text-xs mt-3 text-white/70">
+            {recommendedRatio <= 70
+              ? "Healthy allocation 👍"
+              : "High recommended usage ⚠️"}
+          </p>
         </div>
 
+        {/* Expense Analysis */}
         <div className={glassCard}>
-          <h2 className="text-lg font-semibold">Expense Analysis</h2>
+          <h2 className="text-lg font-semibold mb-4">Expense Analysis</h2>
+
+          <p className="text-sm text-white/70">Expense Ratio</p>
+          <p className="text-2xl font-bold mb-3">{expenseRatio}%</p>
+
+          <div className="w-full bg-white/20 rounded-full h-2">
+            <div
+              className="bg-red-400 h-2 rounded-full"
+              style={{ width: `${expenseRatio}%` }}
+            ></div>
+          </div>
+
+          <p className="text-xs mt-3 text-white/70">
+            {balance > 0
+              ? "You're within budget ✅"
+              : "Over budget ⚠️ Reduce expenses"}
+          </p>
         </div>
 
-        <div className={glassCard}>
+        {/* Budget Doughnut Chart */}
+        <div className={`${glassCard} lg:col-span-3`}>
           <h2 className="text-lg font-semibold mb-4">Budget Analysis</h2>
-          <Doughnut data={doughnutData} options={doughnutOptions} />
+          <div className="max-w-md mx-auto">
+            <Doughnut data={doughnutData} options={doughnutOptions} />
+          </div>
         </div>
       </div>
     </div>

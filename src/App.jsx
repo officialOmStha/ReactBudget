@@ -8,6 +8,7 @@ import PrivateRoute from "./components/PrivateRoute";
 import NavBar from "./components/NavBar";
 import Income from "./components/Incomes";
 import Expenses from "./components/Expenses";
+import RegisterUser from "./components/RegisterUser";
 
 function App() {
   return (
@@ -19,6 +20,14 @@ function App() {
         element={
           <PublicRoute>
             <Login />
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/register"
+        element={
+          <PublicRoute>
+            <RegisterUser />
           </PublicRoute>
         }
       />

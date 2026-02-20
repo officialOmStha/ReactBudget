@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const glassCard =
   "backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl shadow-xl p-6 text-white";
@@ -16,9 +17,10 @@ const AddExp = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const navigate = useNavigate();
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-
     setFormData({
       ...formData,
       [name]: type === "checkbox" ? checked : value,
@@ -49,9 +51,9 @@ const AddExp = () => {
         throw new Error(data.error || "Something went wrong");
       }
 
-      setMessage(data.message);
+      setMessage(data.message || "Expense added successfully ✅");
 
-      // Reset form after success
+      // Reset form
       setFormData({
         amount: "",
         exp_category: "",
@@ -59,6 +61,11 @@ const AddExp = () => {
         date: "",
         is_recurring: false,
       });
+
+      // ✅ Navigate after success
+      setTimeout(() => {
+        navigate("/expensestat");
+      }, 800); // small delay so user sees success message
 
     } catch (err) {
       setError(err.message);
@@ -68,27 +75,16 @@ const AddExp = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 p-6">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 p-6 md:py-20">
       <div className={`${glassCard} w-full max-w-md`}>
         <h2 className="text-2xl font-bold mb-6 text-center">
           Add Expense
         </h2>
 
-        {message && (
-          <div className="mb-4 text-green-400 text-sm">
-            {message}
-          </div>
-        )}
-
-        {error && (
-          <div className="mb-4 text-red-400 text-sm">
-            {error}
-          </div>
-        )}
+        {message && <div className="mb-4 text-green-400 text-sm">{message}</div>}
+        {error && <div className="mb-4 text-red-400 text-sm">{error}</div>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-
-          {/* Amount */}
           <div>
             <label className="text-sm text-white/70">Amount</label>
             <input
@@ -101,7 +97,6 @@ const AddExp = () => {
             />
           </div>
 
-          {/* Category */}
           <div>
             <label className="text-sm text-white/70">Category</label>
             <input
@@ -114,7 +109,6 @@ const AddExp = () => {
             />
           </div>
 
-          {/* Description */}
           <div>
             <label className="text-sm text-white/70">Description</label>
             <textarea
@@ -125,7 +119,6 @@ const AddExp = () => {
             />
           </div>
 
-          {/* Date */}
           <div>
             <label className="text-sm text-white/70">Date</label>
             <input
@@ -138,7 +131,6 @@ const AddExp = () => {
             />
           </div>
 
-          {/* Recurring */}
           <div className="flex items-center gap-2">
             <input
               type="checkbox"
@@ -146,12 +138,9 @@ const AddExp = () => {
               checked={formData.is_recurring}
               onChange={handleChange}
             />
-            <label className="text-sm text-white/70">
-              Recurring Expense
-            </label>
+            <label className="text-sm text-white/70">Recurring Expense</label>
           </div>
 
-          {/* Submit */}
           <button
             type="submit"
             disabled={loading}

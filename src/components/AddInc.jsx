@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const glassCard =
   "backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl shadow-xl p-6 text-white";
@@ -15,6 +16,7 @@ const AddInc = () => {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -49,9 +51,9 @@ const AddInc = () => {
         throw new Error(data.error || "Something went wrong");
       }
 
-      setMessage(data.message);
+      setMessage("Income added successfully ✅");
 
-      // Reset form after success
+      // Reset form
       setFormData({
         amount: "",
         inc_category: "",
@@ -59,6 +61,12 @@ const AddInc = () => {
         date: "",
         is_recurring: false,
       });
+
+      // Navigate AFTER success
+      setTimeout(() => {
+        navigate("/incomestat");
+      }, 800);
+
     } catch (err) {
       setError(err.message);
     } finally {
@@ -67,7 +75,7 @@ const AddInc = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 p-6">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 px-6 md:py-20 ">
       <div className={`${glassCard} w-full max-w-md`}>
         <h2 className="text-2xl font-bold mb-6 text-center">
           Add Income
@@ -86,7 +94,7 @@ const AddInc = () => {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          
+
           {/* Amount */}
           <div>
             <label className="text-sm text-white/70">Amount</label>

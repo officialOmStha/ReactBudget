@@ -10,7 +10,6 @@ import { Doughnut } from "react-chartjs-2";
 const glassCard =
   "backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl shadow-xl p-6 transition hover:bg-white/20 text-white";
 
-// Register Chart.js components
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const Dashboard = () => {
@@ -38,7 +37,6 @@ const Dashboard = () => {
             }
           );
 
-          if (!tokenRes.ok) throw new Error("Refresh token failed");
           const tokenData = await tokenRes.json();
           localStorage.setItem("access", tokenData.access);
 
@@ -47,9 +45,8 @@ const Dashboard = () => {
           });
         }
 
-        if (!res.ok) throw new Error("Failed to fetch dashboard data");
         const result = await res.json();
-        setData(Array.isArray(result) ? result[0] : result);
+        setData(result);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -63,32 +60,41 @@ const Dashboard = () => {
   if (loading) return <div className="p-6 text-white">Loading...</div>;
   if (error) return <div className="p-6 text-red-500">{error}</div>;
 
-  const income = data?.total_income || 0;
-  const expense = data?.total_expense || 0;
-  const recommended = data?.recommended_spending || 0;
-  const balance = data?.remaining_balance || 0;
+  const income = Number(data?.total_income) || 0;
+  const expense = Number(data?.total_expense) || 0;
+  const recommendedSpending = Number(data?.recommended_spending) || 0;
+  const recommendedSaving = Number(data?.recommended_saving) || 0;
+  const balance = Number(data?.remaining_balance) || 0;
 
   const expenseRatio = income ? ((expense / income) * 100).toFixed(1) : 0;
   const recommendedRatio = income
-    ? ((recommended / income) * 100).toFixed(1)
+    ? ((recommendedSpending / income) * 100).toFixed(1)
     : 0;
 
   const doughnutData = {
     labels: [
-      "Total Income",
-      "Total Expense",
+      "Income",
+      "Expense",
       "Recommended Spending",
+      "Recommended Saving",
       "Remaining Balance",
     ],
     datasets: [
       {
         label: "Budget Overview",
-        data: [income, expense, recommended, balance],
+        data: [
+          income,
+          expense,
+          recommendedSpending,
+          recommendedSaving,
+          balance,
+        ],
         backgroundColor: [
-          "rgba(75,192,192,0.6)",
-          "rgba(255,99,132,0.6)",
-          "rgba(255,206,86,0.6)",
-          "rgba(153,102,255,0.6)",
+          "rgba(75,192,192,0.7)",
+          "rgba(255,99,132,0.7)",
+          "rgba(255,206,86,0.7)",
+          "rgba(54,162,235,0.7)",
+          "rgba(153,102,255,0.7)",
         ],
         borderWidth: 1,
       },
@@ -110,7 +116,7 @@ const Dashboard = () => {
       <h1 className="text-3xl font-bold mb-6 text-white">Dashboard</h1>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        
+
         {/* Stats Cards */}
         <div className="grid grid-cols-2 gap-4">
           <div className={glassCard}>
@@ -125,7 +131,12 @@ const Dashboard = () => {
 
           <div className={glassCard}>
             <p className="text-sm text-white/70">Recommended Spending</p>
-            <p className="text-2xl font-bold">{recommended}</p>
+            <p className="text-2xl font-bold">{recommendedSpending}</p>
+          </div>
+
+          <div className={glassCard}>
+            <p className="text-sm text-white/70">Recommended Saving</p>
+            <p className="text-2xl font-bold">{recommendedSaving}</p>
           </div>
 
           <div className={glassCard}>
@@ -138,7 +149,7 @@ const Dashboard = () => {
         <div className={glassCard}>
           <h2 className="text-lg font-semibold mb-4">Income Analysis</h2>
 
-          <p className="text-sm text-white/70">Recommended Usage</p>
+          <p className="text-sm text-white/70">Recommended Spending Ratio</p>
           <p className="text-2xl font-bold mb-3">{recommendedRatio}%</p>
 
           <div className="w-full bg-white/20 rounded-full h-2">
@@ -149,7 +160,7 @@ const Dashboard = () => {
           </div>
 
           <p className="text-xs mt-3 text-white/70">
-            {recommendedRatio <= 70
+            {recommendedRatio <= 60
               ? "Healthy allocation 👍"
               : "High recommended usage ⚠️"}
           </p>
@@ -170,13 +181,13 @@ const Dashboard = () => {
           </div>
 
           <p className="text-xs mt-3 text-white/70">
-            {balance > 0
+            {balance >= 0
               ? "You're within budget ✅"
               : "Over budget ⚠️ Reduce expenses"}
           </p>
         </div>
 
-        {/* Budget Doughnut Chart */}
+        {/* Chart */}
         <div className={`${glassCard} lg:col-span-3`}>
           <h2 className="text-lg font-semibold mb-4">Budget Analysis</h2>
           <div className="max-w-md mx-auto">
